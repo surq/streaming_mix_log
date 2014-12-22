@@ -1,0 +1,91 @@
+<configuration>
+    <commonProps>
+        <describe>
+            1、[appClass]:application应用名称
+            2、[interval]:sparkStreaming job生成时间间隔(单位秒s)
+            3、[logSteps]:指定时间段内的数据在mysql中产生一条数据记录(单位分m),必需被60整除
+        </describe>
+        <appName>Mix_Log_process</appName>
+        <interval>40</interval>
+        <logSteps>15</logSteps>
+    </commonProps>
+    <dataInput>
+        <describe>
+            1、[logType]：日志类型
+            2、[appClass]：逻辑处理实现类
+            3、[dir]：输入数据HDFS路径
+        </describe>
+        <input>
+            <logType>bid</logType>
+            <appClass>com.asiainfo.mix.log.impl.BidAnalysis</appClass>
+            <dir>/home/hadoop/test/bid</dir>
+        </input>
+        <input>
+            <logType>expose</logType>
+            <appClass>com.asiainfo.mix.log.impl.ExposeAnalysis</appClass>
+            <dir>/home/hadoop/test/expose</dir>
+        </input>
+        <input>
+            <logType>click</logType>
+            <appClass>com.asiainfo.mix.log.impl.ClickAnalysis</appClass>
+            <dir>/home/hadoop/test/click</dir>
+        </input>
+        <input>
+            <logType>arrive</logType>
+            <appClass>com.asiainfo.mix.log.impl.ArriveAnalysis</appClass>
+            <dir>/home/hadoop/test/arrive</dir>
+        </input>
+    </dataInput>
+    <dataoutput>
+        <dbSource>
+            <driver>com.mysql.jdbc.Driver</driver>
+            <url>jdbc:mysql://10.1.3.12:3306/dsp</url>
+            <user>dsp</user>
+            <password>pb3_a5aTav</password>
+        </dbSource>
+    </dataoutput>
+    <logProperties>    
+        <describe>
+            1、[topicLogType]的值必需要与kafka的topic一致,标名此类log所发送的kafka topic。
+            2、[items]:按log消息的实际字段顺序记录log字段名称。
+            3、[itemsDescribe]:对log消息实际结构字段的汉语描述。
+            4、[rowKey]:流数据中指定一组字段做为流的键，spark将会从这组主键中提取对应要更新的表的主键值。
+            5、[separator]:输入数据字段分隔符，空时黙认为［0x02］。
+        </describe>
+        <log>
+            <logType>click</logType>
+            <items>loglen,logver,logtime,playid,adid,orderid,activityid,ex_uid,gender,cookie,streamsrc,client ip,ua,referer,loadpage,playstyle,playlocation,pageid,userinteristeid,areaid,sizeid,ad_pos_id,bidtime,cheatflag,storeurl,isinsertscreen,ispaymentapp,app_id,app_name,device_type,os,goodsid,advertiser_id</items>
+            <itemsDescribe>日志长度,日志版本,请求日期/时间,竞价ID,广告ID,订单ID,活动ID,exchange用户ID,性别ID,dsp cookie,流量来源,用户IP,user_agent,页面来源,落地页,展现类型,展示位置,页面分类,用户兴趣,地域id,尺寸id,广告位id,竞价时间,反作弊标识,市场url,是否插屏,支付id,app id,app name,设备类型,os 类型,商品列表,广告主id</itemsDescribe>
+            <rowKey>logtime,adid,orderid,activityid,referer,playlocation,areaid,sizeid</rowKey>
+            <separator></separator>
+        </log>
+        <log>
+            <logType>expose</logType>
+            <items>loglen,logver,logtime,cost,playid,adid,orderid,activityid,ex_uid,gender,cookie,streamsrc,clientip,ua,referer,playstyle,playlocation,pageid,userinteristeid,areaid,sizeid,ad_pos_id,bidtime,cheatflag,storeurl,isinsertscreen,ispaymentapp,app_id,app_name,device_type,os,goodsid,advertiser_id</items>
+            <itemsDescribe>日志长度,日志版本,请求日期/时间,花费,竞价ID,广告ID,订单ID,活动ID,exchange用户ID,性别ID,dsp cookie,流量来源,用户IP,user_agent,页面来源,展现类型,展示位置,页面分类,用户兴趣,地域id,尺寸id,广告位id,竞价时间,反作弊标识,市场url,是否插屏,支付id,app id,app name,设备类型,os 类型,商品列表,广告主id</itemsDescribe>
+            <rowKey>logtime,adid,orderid,activityid,referer,playlocation,areaid,sizeid</rowKey>
+            <separator></separator>
+        </log>
+        <log>
+            <logType>bid</logType>
+            <items>loglen,logver,logtype,logtime,exchange_id,bid_id,client_id,area_id,exchange_userid,useragent,usergender,url,mediasite_id,pageid,keyword,baiduinteristedid,exceptindustry,ad_pos_info,joinbid_ad_num,joinbid_ad_info,insert,paid,app_id,app_name,device_type,os,ctr_value,mobile,device_id,mac,connection type,carrier,app_category,idfa,handletime</items>
+            <itemsDescribe>日志长度,日志版本,日志类型,请求日期/时间,EXCHANGE标识,竞价ID,客户端ip,地域ID,EXCHANGE用户ID,USER AGENT,USER GENDER,URL,媒体网站分类,页面分类,页面关键词信息,百度兴趣分类,排除行业信息,广告位信息,参与竞价广告数量,参与竞价广告信息放弃竞价为空,是否插屏,是否付费app,app_id,app_name,device_type,os,ctr_value,mobile,device_id,mac,connection type,carrier,app category,IDFA,处理时间</itemsDescribe>
+            <rowKey>logtime,area_id,url,ad_pos_info,joinbid_ad_info</rowKey>
+            <separator></separator>
+        </log>
+        <log>
+            <logType>arrive</logType>
+            <items>loglen,logver,logtime,MIX_UID,resouce_name,si,ua,referer,order,client_ip</items>
+            <itemsDescribe>日志长度,日志版本,请求日期/时间,dsp的cookieID,mix.gif,监测点ID,userAgent,当前页面url,订单id,客户端IP</itemsDescribe>
+            <rowKey>logtime,order</rowKey>
+            <separator></separator>
+        </log>
+    </logProperties>
+    <tableDefines>
+        <table>
+            <tableName>dsp_report_data_temp</tableName>
+            <items>id,activity_id,order_id,material_id,ad_id,size_id,area_id,start_time,end_time,media,ad_pos_id,bid_cnt,bid_success_cnt,expose_cnt,click_cnt,arrive_cnt,second_jump_cnt,trans_cnt,cost</items>
+            <itemsDescribe>自增,活动ID,订单ID,素材ID,广告ID,尺寸ID,地域ID（可能是省，也可 能是市）,开始时间(00,30分钟),结束时间(29,59分钟),媒体,广告位ID,竞价次数,竞价成功次数,曝光次数,点击次数,到达次数,二跳次数（暂不统计）,转化次数,花费</itemsDescribe>
+        </table>
+    </tableDefines>
+</configuration>
