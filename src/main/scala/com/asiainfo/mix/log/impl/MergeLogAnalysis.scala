@@ -1,6 +1,7 @@
 package com.asiainfo.mix.log.impl
 
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.Map
 import org.apache.spark.streaming.StreamingContext._
 import org.apache.spark.streaming.dstream.DStream
 import com.asiainfo.mix.xml.XmlProperiesAnalysis
@@ -16,18 +17,17 @@ class MergeLogAnalysis extends Serializable {
   /**
    * @param inputStream:log流数据<br>
    */
-  def run(logtype: String, inputStream: DStream[Array[(String, String)]], logSteps: Int) = {
-//    : DStream[String]
+  def run(logtype: String, inputStream: DStream[Array[(String, String)]], logSteps: Int, outSeparator: String) = {
 
-    val dbSourceArray = (XmlProperiesAnalysis.getDbSourceMap).toArray
     val logPropertiesMaps = XmlProperiesAnalysis.getLogStructMap
     val tablesMap = XmlProperiesAnalysis.getTablesDefMap
-
     // rowkey 连接符
     val separator = "asiainfoMixSeparator"
 
     //输出为表结构样式　用
     val tbname = tablesMap("tableName")
+    //输出为表结构样式　用
+    val tbItems = tablesMap("items").split(",")
 
     inputStream.map(record => {
       val itemMap = record.toMap
@@ -36,9 +36,9 @@ class MergeLogAnalysis extends Serializable {
     }).groupByKey.map(f => {
 
       // 创建db表结构并初始化
-      var dbrecord = Map[String, String]()
-      // 去除前取数据处理时，拼接的rowKey字段和长度，此字段数据库中不存在
-      val exceptItems = Array("rowKey", "log_length")
+      val dbrecord = Map[String, String]()
+      // 去除前取数据处理时，拼接的rowKey字段，此字段数据库中不存在
+      val exceptItems = Array("rowKey")
       // 汇总所有类型log日志更新的字段
       f._2.foreach(record => {
         val items = for (enum <- record if (enum._2 != "")) yield enum
@@ -62,34 +62,11 @@ class MergeLogAnalysis extends Serializable {
       val logdate = getlogtime(keyarray(8), logSteps)
       dbrecord += (("start_time") -> logdate._1)
       dbrecord += (("end_time") -> logdate._2)
-
-      val selectKeyArray = ArrayBuffer[(String, String)]()
-      selectKeyArray += (("activity_id") -> keyarray(0))
-      selectKeyArray += (("order_id") -> keyarray(1))
-      selectKeyArray += (("material_id") -> keyarray(2))
-      selectKeyArray += (("ad_id") -> keyarray(3))
-      selectKeyArray += (("size_id") -> keyarray(4))
-      selectKeyArray += (("area_id") -> keyarray(5))
-      selectKeyArray += (("media") -> keyarray(6))
-      selectKeyArray += (("ad_pos_id") -> keyarray(7))
-      selectKeyArray += (("start_time") -> logdate._1)
-      selectKeyArray += (("end_time") -> logdate._2)
-      val tuple3: Tuple3[String, Map[String, String], ArrayBuffer[(String, String)]] = (f._1, dbrecord, selectKeyArray)
-      tuple3
-    }).mapPartitions(mp => {
-      val connection = LogTools.getConnection(dbSourceArray)
-      val tmpList: ArrayBuffer[String] = ArrayBuffer[String]()
-      for (patition <- mp) {
-        tmpList += patition._1
-        val dbrecord = patition._2
-        val selectKeyArray = patition._3
-        // 调用db查看有无数据存在
-        //无则插入，有则更新
-        LogTools.updataMysql(tbname, connection, selectKeyArray.toArray, dbrecord.toArray)
-      }
-      LogTools.closeConnection(connection)
-      tmpList.iterator
-    }).map(f => f)
+      
+      // 输出，输出分隔符默认为"\t"
+      val dataRow = for (item <- tbItems) yield (dbrecord.getOrElse(item, "0"))
+      if (outSeparator == "") dataRow.mkString("\t") else dataRow.mkString(outSeparator)
+    })
   }
 
   /**

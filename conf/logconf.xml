@@ -37,12 +37,14 @@
         </input>
     </dataInput>
     <dataoutput>
-        <dbSource>
-            <driver>com.mysql.jdbc.Driver</driver>
-            <url>jdbc:mysql://10.1.3.12:3306/dsp</url>
-            <user>dsp</user>
-            <password>pb3_a5aTav</password>
-        </dbSource>
+        <describe>
+            1、[saveAsFilePath]：输出表数据存储路径
+            2、[extension]：输出文件后缀名
+            3、[separator]：输出文件字段分隔符，默认“\t”
+        </describe>
+        <saveAsFilePath>/data1/user/streaming/app/mix_log/DBdata</saveAsFilePath>
+        <extension>.data</extension>
+        <separator></separator>
     </dataoutput>
     <logProperties>    
         <describe>

@@ -29,6 +29,8 @@ object LogAnalysisApp {
     val logSteps = commonPropsMap.getOrElse("logSteps", "15").toInt
     val logStructMap = XmlProperiesAnalysis.getLogStructMap
     val dataInput = XmlProperiesAnalysis.getDataInputMap
+    val outputDataMap = XmlProperiesAnalysis.getOutputDataMap
+    val outSeparator = outputDataMap("separator")
 
     // TODO
     //            val master = "local[2]"
@@ -46,7 +48,7 @@ object LogAnalysisApp {
     })
 
     // 数据与配置文件定义相拉链，变为[k,v]形式，并过滤字段个数不正确的数据
-    val kvDstreams = logStructMap.filter(p => if (p._1 == "merge") false else true).map(log => {
+    val kvDstreams = logStructMap.map(log => {
       val logtype = log._1
       val mixLogMap = log._2
       val separator = mixLogMap("separator")
@@ -82,8 +84,19 @@ object LogAnalysisApp {
     // 多日志合并更新mysql
     val unionStreams = dataDstreams.reduce(_ union _)
     val mergeLogAnalysis = new MergeLogAnalysis()
-    val outputStream = mergeLogAnalysis.run("merge", unionStreams, logSteps)
-    outputStream.foreach(rdd => LogTools.mixInfo((rdd.count).toString))
+    val outputStream = mergeLogAnalysis.run("merge", unionStreams, logSteps, outSeparator)
+
+    outputStream.foreachRDD(rdd => {
+      if (rdd.partitions.size > 0) {
+        val dataList = rdd.collect
+        if (dataList.size > 0) {
+          val fileWriter = LogTools.mixLogWriter(outputDataMap.toArray)
+          dataList.foreach(row => fileWriter.write(row + System.getProperty("line.separator")))
+          fileWriter.flush
+          fileWriter.close()
+        }
+      }
+    })
     ssc.start()
     ssc.awaitTermination()
   }

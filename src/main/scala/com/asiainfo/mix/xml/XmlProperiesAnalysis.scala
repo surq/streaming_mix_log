@@ -14,39 +14,15 @@ object XmlProperiesAnalysis {
 
   @BeanProperty val commonPropsMap = Map[String, String]()
   @BeanProperty val dataInputMap = Map[String, Map[String, String]]()
-  @BeanProperty val dbSourceMap = Map[String, String]()
   @BeanProperty val logStructMap = Map[String, Map[String, String]]()
   @BeanProperty val tablesDefMap = Map[String, String]()
+  @BeanProperty val outputDataMap = Map[String, String]()
 
   val ox002: Char = 2
   val defSeparator = ox002.toString
-  
+
   def main(arge: Array[String]) {
-    XmlProperiesAnalysis.getXmlProperies
-
-    val value = XmlProperiesAnalysis.getCommonPropsMap
-    println("------------properiesMap:applacation---------------")
-    value foreach println
-
-    val path = XmlProperiesAnalysis.getDataInputMap
-    println("-------------HDFSfilePathMap--------------")
-    path.map(f => {
-      println(f._1)
-      f._2 foreach println
-    })
-
-    println("-------------dbSourceMap:db--------------")
-    val db = XmlProperiesAnalysis.getDbSourceMap
-    db foreach println
-    println("-------------logStructMap：log--------------")
-    val log = XmlProperiesAnalysis.getLogStructMap
-    log.map(f => {
-      println(f._1)
-      f._2 foreach println
-    })
-    val tab = XmlProperiesAnalysis.getTablesDefMap
-    println("-------------tablesDefMap：mysql--------------")
-    tab foreach println
+    
   }
 
   def getXmlProperies = {
@@ -68,27 +44,21 @@ object XmlProperiesAnalysis {
       val logType = (f \ "logType").text.toString.trim
       val appClass = (f \ "appClass").text.toString.trim
       val dir = (f \ "dir").text.toString.trim
-
       val inputMap = Map[String, String]()
       inputMap += ("logType" -> logType)
       inputMap += ("appClass" -> appClass)
       inputMap += ("dir" -> dir)
-
       dataInputMap += (logType -> inputMap)
     })
 
-    //-----------------db(mysql) 驱动配置-----------------------------------
-    val dbconf = xmlFile \ "dataoutput" \ "dbSource"
-    val driver = (dbconf \ "driver").text.toString.trim
-    val url = (dbconf \ "url").text.toString.trim
-    val user = (dbconf \ "user").text.toString
-    val password = (dbconf \ "password").text.toString.trim
-
-    dbSourceMap += ("driver" -> driver)
-    dbSourceMap += ("url" -> url)
-    dbSourceMap += ("user" -> user)
-    dbSourceMap += ("password" -> password)
-
+    //-----------------output File配置-----------------------------------
+    val output = xmlFile \ "dataoutput"
+    val saveAsFilePath = (output \ "saveAsFilePath").text.toString.trim
+    val extension = (output \ "extension").text.toString.trim
+    val separator = (output \ "separator").text.toString
+    outputDataMap += ("saveAsFilePath" -> saveAsFilePath)
+    outputDataMap += ("extension" -> extension)
+    outputDataMap += ("separator" -> separator)
     //-----------------log 日志属性配置--------------------------------------
 
     val mixlogs = xmlFile \ "logProperties" \ "log"
