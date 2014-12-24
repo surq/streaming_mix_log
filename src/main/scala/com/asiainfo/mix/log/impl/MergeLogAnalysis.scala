@@ -41,10 +41,12 @@ class MergeLogAnalysis extends Serializable {
       val exceptItems = Array("rowKey")
       // 汇总所有类型log日志更新的字段
       f._2.foreach(record => {
+        // 除联合rowkey之外要更新的字段item:[(k,v),(k,v)]
         val items = for (enum <- record if (enum._2 != "")) yield enum
         items.foreach(f => {
           if (!exceptItems.contains(f._1)) {
-            dbrecord += ((f._1) -> (dbrecord.getOrElse(f._1, "0").toFloat + f._2.toFloat).toString)
+            // f._1: 除rowkey之外的字段
+            dbrecord += ((f._1) -> (dbrecord.getOrElse(f._1, "0") + f._2).toString)
           }
         })
       })
@@ -57,12 +59,16 @@ class MergeLogAnalysis extends Serializable {
       dbrecord += (("ad_id") -> keyarray(3))
       dbrecord += (("size_id") -> keyarray(4))
       dbrecord += (("area_id") -> keyarray(5))
-      dbrecord += (("media") -> keyarray(6))
+      dbrecord += (("domain") -> keyarray(6))
       dbrecord += (("ad_pos_id") -> keyarray(7))
       val logdate = getlogtime(keyarray(8), logSteps)
       dbrecord += (("start_time") -> logdate._1)
       dbrecord += (("end_time") -> logdate._2)
-      
+      dbrecord += (("exchange_id") -> (if (keyarray(9).trim.isEmpty())"0" else keyarray(9)))
+      dbrecord += (("app_id") -> (if (keyarray(10).trim.isEmpty())"0" else keyarray(10)))
+      dbrecord += (("app_name") -> (if (keyarray(11).trim.isEmpty())"0" else keyarray(11)))
+      dbrecord += (("exchange_app_cat_id") -> (if (keyarray(12).trim.isEmpty())"0" else keyarray(12)))
+
       // 输出，输出分隔符默认为"\t"
       val dataRow = for (item <- tbItems) yield (dbrecord.getOrElse(item, "0"))
       if (outSeparator == "") dataRow.mkString("\t") else dataRow.mkString(outSeparator)

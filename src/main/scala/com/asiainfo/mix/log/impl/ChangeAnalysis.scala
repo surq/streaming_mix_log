@@ -9,10 +9,10 @@ import com.asiainfo.mix.streaming_log.DimensionEditor
 
 /**
  * @author surq
- * @since 2014.07.15
- * 到达日志 流处理
+ * @since 2014.12.24
+ * 转换日志 流处理
  */
-class ArriveAnalysis extends StreamAction with Serializable {
+class ChangeAnalysis extends StreamAction with Serializable {
 
   val ox003: Char = 3
 
@@ -20,7 +20,7 @@ class ArriveAnalysis extends StreamAction with Serializable {
    * @param inputStream:log流数据<br>
    */
   override def run(logtype: String, inputStream: DStream[Array[(String, String)]], logSteps: Int): DStream[Array[(String, String)]] = {
-    printInfo(this.getClass(), "ArriveAnalysis is running!")
+    printInfo(this.getClass(), "ChangeAnalysis is running!")
 
     val tablesMap = XmlProperiesAnalysis.getTablesDefMap
     val logPropertiesMaps = XmlProperiesAnalysis.getLogStructMap
@@ -33,7 +33,6 @@ class ArriveAnalysis extends StreamAction with Serializable {
     // rowkey 连接符
     val separator = "asiainfoMixSeparator"
 
-    //到达日志的第9位字段不为空
     inputStream.filter(record => {
       val itemMap = record.toMap
       if (itemMap("order").trim.isEmpty) false else {
@@ -41,12 +40,12 @@ class ArriveAnalysis extends StreamAction with Serializable {
         // （time_domain_sizeid_areaid_slotid_cid_oid_adid）
         val idList = LogTools.splitArray(itemMap("order"), ox003.toString, 10)
         val time = if (idList(0).trim == "") 0 else idList(0).toLong
-        val logtime = itemMap("logtime").toLong - (5 * 60 * 1000)
+        val logtime = itemMap("logtime").toLong - (7 * 24 * 3600 * 1000)
         if (logtime <= time) true else false
       }
     }).map(record => {
       val itemMap = record.toMap
-      (itemMap("order"), record)
+      (itemMap("order") + itemMap("MIX_UID"), record)
     }).groupByKey.map(f => {
       val record = (f._2).head
       val itemMap = record.toMap
@@ -55,8 +54,7 @@ class ArriveAnalysis extends StreamAction with Serializable {
       // 创建db表结构并初始化
       var dbrecord = Map[String, String]()
       // 流计算
-      dbrecord += (("arrive_cnt") -> "1")
-      
+      dbrecord += (("trans_cnt") -> "1")
       // 顺列流字段为db表结构字段 第一个字段 rowKey
       var mesgae = LogTools.setTBSeq(rowKey, tbItems, dbrecord)
       mesgae.toArray
