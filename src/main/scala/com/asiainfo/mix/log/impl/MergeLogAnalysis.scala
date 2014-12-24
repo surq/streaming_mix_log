@@ -61,7 +61,7 @@ class MergeLogAnalysis extends Serializable {
       dbrecord += (("area_id") -> keyarray(5))
       dbrecord += (("domain") -> keyarray(6))
       dbrecord += (("ad_pos_id") -> keyarray(7))
-      val logdate = getlogtime(keyarray(8), logSteps)
+      val logdate = LogTools.getlogtime(keyarray(8), logSteps)
       dbrecord += (("start_time") -> logdate._1)
       dbrecord += (("end_time") -> logdate._2)
       dbrecord += (("exchange_id") -> (if (keyarray(9).trim.isEmpty())"0" else keyarray(9)))
@@ -73,21 +73,5 @@ class MergeLogAnalysis extends Serializable {
       val dataRow = for (item <- tbItems) yield (dbrecord.getOrElse(item, "0"))
       if (outSeparator == "") dataRow.mkString("\t") else dataRow.mkString(outSeparator)
     })
-  }
-
-  /**
-   * 根据logtime的时间，取logtime所在的时间范围<br>
-   */
-  def getlogtime(logdate: String, logSteps: Int): Tuple2[String, String] = {
-    // 补全起止时间格式
-    var start_time = ((logdate.substring(10)).toInt * logSteps).toString
-    start_time = "00" + start_time
-    start_time = start_time.substring(start_time.length - 2)
-    start_time = logdate.substring(0, 10) + start_time + "00"
-    var end_time = ((((logdate.substring(10)).toInt + 1) * logSteps) - 1).toString
-    end_time = "00" + end_time
-    end_time = end_time.substring(end_time.length - 2)
-    end_time = logdate.substring(0, 10) + end_time + "59"
-    (start_time, end_time)
   }
 }

@@ -81,27 +81,6 @@ object LogTools extends Logging with Serializable {
   }
 
   /**
-   * @param dbSourceArray:数据库驱动<br>
-   * @retun Connection db连结<br>
-   */
-  def getConnection(dbSourceArray: Array[(String, String)]): Connection = {
-
-    val dbSourceMap = dbSourceArray.toMap
-    Class.forName(dbSourceMap("driver"))
-    DriverManager.getConnection(dbSourceMap("url"), dbSourceMap("user"), dbSourceMap("password"))
-  }
-
-  /**
-   * @param dbSourceArray:数据库驱动<br>
-   * @retun Connection db连结<br>
-   */
-  def closeConnection(conn: Connection) {
-    if (conn != null) {
-      conn.close()
-    }
-  }
-
-  /**
    * 把流数据变为mysql表中的结构（额外附加一个rowkey字段）<br>
    * @param tbItems:mysql表字段列表<br>
    * @param dbrecord:流计算的结果字段<br>
@@ -145,5 +124,21 @@ object LogTools extends Logging with Serializable {
       odeArray += ""
     })
     odeArray.toArray
+  }
+
+  /**
+   * 根据logtime的时间，取logtime所在的时间范围<br>
+   */
+  def getlogtime(logdate: String, logSteps: Int): Tuple2[String, String] = {
+    // 补全起止时间格式
+    var start_time = ((logdate.substring(10)).toInt * logSteps).toString
+    start_time = "00" + start_time
+    start_time = start_time.substring(start_time.length - 2)
+    start_time = logdate.substring(0, 10) + start_time + "00"
+    var end_time = ((((logdate.substring(10)).toInt + 1) * logSteps) - 1).toString
+    end_time = "00" + end_time
+    end_time = end_time.substring(end_time.length - 2)
+    end_time = logdate.substring(0, 10) + end_time + "59"
+    (start_time, end_time)
   }
 }

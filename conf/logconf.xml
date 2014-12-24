@@ -98,7 +98,7 @@
     <tableDefines>
         <table>
             <tableName>dsp_report_data_temp</tableName>
-            <items>activity_id,order_id,material_id,ad_id,size_id,area_id,start_time,end_time,data_date,domain,ad_pos_id,exchange_id,app_id,app_name,exchange_app_cat_id,bid_cnt,bid_success_cnt,expose_cnt,click_cnt,arrive_cnt,second_jump_cnt,trans_cnt,cost</items>
+            <items>activity_id,order_id,material_id,ad_id,size_id,area_id,start_time,end_time,domain,ad_pos_id,exchange_id,app_id,app_name,exchange_app_cat_id,bid_cnt,bid_success_cnt,expose_cnt,click_cnt,arrive_cnt,second_jump_cnt,trans_cnt,cost</items>
             <itemsDescribe>自增,活动ID,订单ID,素材ID,广告ID,尺寸ID,地域ID（可能是省，也可 能是市）,开始时间(00,30分钟),结束时间(29,59分钟),媒体,广告位ID,竞价次数,竞价成功次数,曝光次数,点击次数,到达次数,二跳次数（暂不统计）,转化次数,花费</itemsDescribe>
         </table>
     </tableDefines>
