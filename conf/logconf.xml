@@ -30,16 +30,6 @@
             <appClass>com.asiainfo.mix.log.impl.ClickAnalysis</appClass>
             <dir>/home/hadoop/test/click</dir>
         </input>
-        <input>
-            <logType>arrive</logType>
-            <appClass>com.asiainfo.mix.log.impl.ArriveAnalysis</appClass>
-            <dir>/home/hadoop/test/arrive</dir>
-        </input>
-        <input>
-            <logType>change</logType>
-            <appClass>com.asiainfo.mix.log.impl.ChangeAnalysis</appClass>
-            <dir>/home/hadoop/test/change</dir>
-        </input>
     </dataInput>
     <dataoutput>
         <describe>
@@ -80,26 +70,13 @@
             <rowKey>logtime,area_id,url,ad_pos_info,joinbid_ad_info,exchange_id,pageid,app_id,app_name</rowKey>
             <separator></separator>
         </log>
-        <log>
-            <logType>arrive</logType>
-            <items>loglen,logver,logtime,MIX_UID,resouce_name,si,ua,referer,order,client_ip</items>
-            <itemsDescribe>日志长度,日志版本,请求日期/时间,dsp的cookieID,mix.gif,监测点ID,userAgent,当前页面url,订单id,客户端IP</itemsDescribe>
-            <rowKey>logtime,order</rowKey>
-            <separator></separator>
-        </log>
-        <log>
-            <logType>change</logType>
-            <items>loglen,logver,logtime,MIX_UID,resouce_name,si,ua,referer,order,client_ip</items>
-            <itemsDescribe>日志长度,日志版本,请求日期/时间,dsp的cookieID,mix.gif,监测点ID,userAgent,当前页面url,订单id,客户端IP</itemsDescribe>
-            <rowKey>logtime,order</rowKey>
-            <separator></separator>
-        </log>
     </logProperties>
     <tableDefines>
         <table>
             <tableName>dsp_report_data_temp</tableName>
-            <items>activity_id,order_id,material_id,ad_id,size_id,area_id,start_time,end_time,domain,ad_pos_id,exchange_id,app_id,app_name,exchange_app_cat_id,bid_cnt,bid_success_cnt,expose_cnt,click_cnt,arrive_cnt,second_jump_cnt,trans_cnt,cost</items>
+            <items>activity_id,order_id,material_id,ad_id,size_id,area_id,start_time,end_time,domain,ad_pos_id,exchange_id,app_id,app_name,exchange_app_cat_id,bid_cnt,bid_success_cnt,expose_cnt,click_cnt,cost</items>
             <itemsDescribe>自增,活动ID,订单ID,素材ID,广告ID,尺寸ID,地域ID（可能是省，也可 能是市）,开始时间(00,30分钟),结束时间(29,59分钟),媒体,广告位ID,竞价次数,竞价成功次数,曝光次数,点击次数,到达次数,二跳次数（暂不统计）,转化次数,花费</itemsDescribe>
+			<rowkey>activity_id,order_id,material_id,ad_id,size_id,area_id,domain,ad_pos_id,start_time,end_time,exchange_id,app_id,app_name,exchange_app_cat_id,bid_cnt,click_cnt,bid_success_cnt,expose_cnt,cost</rowkey>
         </table>
     </tableDefines>
 </configuration>

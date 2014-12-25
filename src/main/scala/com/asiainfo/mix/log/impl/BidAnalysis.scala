@@ -19,31 +19,28 @@ class BidAnalysis extends StreamAction with Serializable {
    */
   override def run(logtype: String, inputStream: DStream[Array[(String, String)]], logSteps: Int): DStream[Array[(String, String)]] = {
     printInfo(this.getClass(), "BitAnalysis is running!")
-    
+
     val logPropertiesMaps = XmlProperiesAnalysis.getLogStructMap
     val logPropertiesMap = logPropertiesMaps(logtype)
     // log数据主key
     val keyItems = logPropertiesMap("rowKey").split(",")
-    val tablesMap = XmlProperiesAnalysis.getTablesDefMap
-    //输出为表结构样式　用
-    val tbItems = tablesMap("items").split(",")
-    
+
     // rowkey 连接符
     val separator = "asiainfoMixSeparator"
-      
+
     inputStream.map(record => {
       val itemMap = record.toMap
       val keyMap = (for { key <- keyItems } yield (key, itemMap(key))).toMap
-      (DimensionEditor.getBidRowKeyEditor(keyMap, logSteps, separator), record)
+      (DimensionEditor.getUnionKey("bid",keyMap, logSteps, separator), record)
     }).groupByKey.map(f => {
       val count = f._2.size
       // 创建db表结构并初始化
       var dbrecord = Map[String, String]()
       // 流计算
       dbrecord += (("bid_cnt") -> count.toString)
-      // 顺列流字段为db表结构字段,第一个字段rowKey
-      var mesgae = LogTools.setTBSeq(f._1, tbItems, dbrecord)
-      mesgae.toArray
+      // rowKey: 多维度联合主键
+      dbrecord += (("rowKey", f._1))
+      dbrecord.toArray
     })
   }
 }

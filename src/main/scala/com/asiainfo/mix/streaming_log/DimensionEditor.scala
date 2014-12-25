@@ -1,6 +1,7 @@
 package com.asiainfo.mix.streaming_log
 
 /**
+ * 维度编辑<br>
  * @author surq
  * @since 2014.12.24
  * 取得联合rowkey：
@@ -9,12 +10,21 @@ package com.asiainfo.mix.streaming_log
  */
 object DimensionEditor extends Serializable {
 
-//  def getUnionKey (seq: Seq[Map[String, String], Int,String])={
-//  }
-  
+  def getUnionKey(paramList: Tuple4[String, Map[String, String], Int, String]) = {
+    val (logType, keyMap, logSteps, separator) = paramList
+    logType match {
+      case "bid" => getBidRowKeyEditor(keyMap, logSteps, separator)
+      case "click" => getClickRowKeyEditor(keyMap, logSteps, separator)
+      case "expose" => getExposeRowKeyEditor(keyMap, logSteps, separator)
+      case "arrive" => getArriveChangeRowKeyEditor(keyMap, logSteps, separator)
+      case "change" => getArriveChangeRowKeyEditor(keyMap, logSteps, separator)
+      case _  => println("无此类型日志，请检查["+ logType +"]拼写");""
+    }
+  }
+
   /**
    * 联合rowkey:
-   *  
+   *
    */
   val ox003: Char = 3
 
@@ -22,9 +32,10 @@ object DimensionEditor extends Serializable {
    * 根据到达日志和最终要更新的mysql表的主键<br>
    * 编辑到达日志的rowkey<br>
    * logSteps:设定的log时间分片时长<br>
-   * rowkey (表中的顺序): 活动ID+订单ID+素材ID+广告ID+尺寸ID+地域ID+媒体+广告位ID+日志时间<br>
+   * rowkey (表中的顺序): 活动ID+订单ID+素材ID+广告ID+尺寸ID+地域ID+媒体+
+   * 广告位ID+日志时间+exchange_id+app_id+app_name+exchange_app_cat_id<br>
    */
-  def getArriveChangeRowKeyEditor(keyMap: Map[String, String], logSteps: Int, separator: String): String = {
+  private def getArriveChangeRowKeyEditor(keyMap: Map[String, String], logSteps: Int, separator: String): String = {
     //到达日志 主key		
     //日志时间	log_time
     //referer	media_url
@@ -78,9 +89,10 @@ object DimensionEditor extends Serializable {
    * 根据竞价日志和最终要更新的mysql表的主键<br>
    * 编辑竞价日志的rowkey<br>
    * logSpace:设定的log时间分片时长<br>
-   * rowkey (表中的顺序): 活动ID+订单ID+素材ID+广告ID+尺寸ID+地域ID+媒体+广告位ID+日志时间<br>
+   * rowkey (表中的顺序): 活动ID+订单ID+素材ID+广告ID+尺寸ID+地域ID+媒体+
+   * 广告位ID+日志时间+exchange_id+app_id+app_name+exchange_app_cat_id<br>
    */
-  def getBidRowKeyEditor(keyMap: Map[String, String], logSteps: Int, separator: String): String = {
+  private def getBidRowKeyEditor(keyMap: Map[String, String], logSteps: Int, separator: String): String = {
     //竞价日志 主key		
     //请求日期/时间	log_time
     //地域ID	area_id
@@ -121,13 +133,17 @@ object DimensionEditor extends Serializable {
     //URL	media_url
     val domain = LogTools.getDomain(keyMap("url"))
     // 广告交易平台ID	
-    val exchange_id = keyMap("exchange_id")
+    var exchange_id = "0"
+    if (!(keyMap("exchange_id").trim.isEmpty)) exchange_id = keyMap("exchange_id")
     // app_id
-    val app_id = keyMap("app_id")
+    var app_id = "0"
+    if (!(keyMap("app_id").trim.isEmpty)) app_id = keyMap("app_id")
     // app名称
-    val app_name = keyMap("app_name")
+    var app_name = "0"
+    if (!(keyMap("app_name").trim.isEmpty)) app_name = keyMap("app_name")
     // app分类ID
-    val exchange_app_cat_id = keyMap("pageid")
+    var exchange_app_cat_id = "0"
+    if (!(keyMap("pageid").trim.isEmpty)) exchange_app_cat_id = keyMap("pageid")
 
     val log_time = LogTools.timeConversion_H(keyMap("logtime")) + LogTools.timeFlg(keyMap("logtime"), logSteps)
     activity_id + separator +
@@ -149,9 +165,10 @@ object DimensionEditor extends Serializable {
    * 根据点击日志和最终要更新的mysql表的主键<br>
    * 编辑点击日志的rowkey<br>
    * logSteps:设定的log时间分片时长<br>
-   * rowkey (表中的顺序): 活动ID+订单ID+素材ID+广告ID+尺寸ID+地域ID+媒体+广告位ID+日志时间<br>
+   * rowkey (表中的顺序): 活动ID+订单ID+素材ID+广告ID+尺寸ID+地域ID+媒体+广告位ID+
+   * 日志时间+exchange_id+app_id+app_name+exchange_app_cat_id<br>
    */
-  def getClickRowKeyEditor(keyMap: Map[String, String], logSteps: Int, separator: String): String = {
+  private def getClickRowKeyEditor(keyMap: Map[String, String], logSteps: Int, separator: String): String = {
     //点击日志 主key		
     //日志时间	logtime
     //广告id	adid	adid和materialid相同
@@ -165,13 +182,17 @@ object DimensionEditor extends Serializable {
     val referer = LogTools.getDomain(keyMap("referer"))
     val log_time = LogTools.timeConversion_H(keyMap("logtime")) + LogTools.timeFlg(keyMap("logtime"), logSteps)
     // 广告交易平台ID	
-    val exchange_id = keyMap("streamsrc")
+    var streamsrc = "0"
+    if (!(keyMap("streamsrc").trim.isEmpty)) streamsrc = keyMap("streamsrc")
     // app_id
-    val app_id = keyMap("app_id")
+    var app_id = "0"
+    if (!(keyMap("app_id").trim.isEmpty)) app_id = keyMap("app_id")
     // app名称
-    val app_name = keyMap("app_name")
+    var app_name = "0"
+    if (!(keyMap("app_name").trim.isEmpty)) app_name = keyMap("app_name")
     // app分类ID
-    val exchange_app_cat_id = keyMap("pageid")
+    var exchange_app_cat_id = "0"
+    if (!(keyMap("pageid").trim.isEmpty)) exchange_app_cat_id = keyMap("pageid")
 
     keyMap("activityid") + separator +
       keyMap("orderid") + separator +
@@ -182,7 +203,7 @@ object DimensionEditor extends Serializable {
       referer + separator +
       keyMap("playlocation") + separator +
       log_time + separator +
-      exchange_id + separator +
+      streamsrc + separator +
       app_id + separator +
       app_name + separator +
       exchange_app_cat_id
@@ -195,7 +216,7 @@ object DimensionEditor extends Serializable {
    * logSteps:设定的log时间分片时长<br>
    * rowkey (表中的顺序): 活动ID+订单ID+素材ID+广告ID+尺寸ID+地域ID+媒体+广告位ID+日志时间<br>
    */
-  def getExposeRowKeyEditor(keyMap: Map[String, String], logSteps: Int, separator: String): String = {
+  private def getExposeRowKeyEditor(keyMap: Map[String, String], logSteps: Int, separator: String): String = {
     //编辑曝光日志 主key    
     //日志时间 logtime
     //广告id	adid
@@ -209,13 +230,17 @@ object DimensionEditor extends Serializable {
     val referer = LogTools.getDomain(keyMap("referer"))
     val log_time = LogTools.timeConversion_H(keyMap("logtime")) + LogTools.timeFlg(keyMap("logtime"), logSteps)
     // 广告交易平台ID	
-    val exchange_id = keyMap("streamsrc")
+    var streamsrc = "0"
+    if (!(keyMap("streamsrc").trim.isEmpty)) streamsrc = keyMap("streamsrc")
     // app_id
-    val app_id = keyMap("app_id")
+    var app_id = "0"
+    if (!(keyMap("app_id").trim.isEmpty)) app_id = keyMap("app_id")
     // app名称
-    val app_name = keyMap("app_name")
+    var app_name = "0"
+    if (!(keyMap("app_name").trim.isEmpty)) app_name = keyMap("app_name")
     // app分类ID
-    val exchange_app_cat_id = keyMap("pageid")
+    var exchange_app_cat_id = "0"
+    if (!(keyMap("pageid").trim.isEmpty)) exchange_app_cat_id = keyMap("pageid")
     keyMap("activityid") + separator +
       keyMap("orderid") + separator +
       keyMap("adid") + separator +
@@ -225,7 +250,7 @@ object DimensionEditor extends Serializable {
       referer + separator +
       keyMap("playlocation") + separator +
       log_time + separator +
-      exchange_id + separator +
+      streamsrc + separator +
       app_id + separator +
       app_name + separator +
       exchange_app_cat_id

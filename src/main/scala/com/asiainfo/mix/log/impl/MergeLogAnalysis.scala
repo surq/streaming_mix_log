@@ -25,30 +25,25 @@ class MergeLogAnalysis extends Serializable {
     val separator = "asiainfoMixSeparator"
 
     //输出为表结构样式　用
-    val tbname = tablesMap("tableName")
-    //输出为表结构样式　用
     val tbItems = tablesMap("items").split(",")
 
     inputStream.map(record => {
-      val itemMap = record.toMap
+      var itemMap = record.toMap
       val rowKey = itemMap("rowKey")
-      (rowKey, record)
+      // 统计字段排除rowKey
+      itemMap -= "rowKey"
+      (rowKey, itemMap.toArray)
     }).groupByKey.map(f => {
-
-      // 创建db表结构并初始化
+      // 创建db表结构并初始化"0"
       val dbrecord = Map[String, String]()
-      // 去除前取数据处理时，拼接的rowKey字段，此字段数据库中不存在
-      val exceptItems = Array("rowKey")
+      tbItems.map(item => {
+        dbrecord += (item -> "0")
+      })
+
       // 汇总所有类型log日志更新的字段
-      f._2.foreach(record => {
-        // 除联合rowkey之外要更新的字段item:[(k,v),(k,v)]
-        val items = for (enum <- record if (enum._2 != "")) yield enum
-        items.foreach(f => {
-          if (!exceptItems.contains(f._1)) {
-            // f._1: 除rowkey之外的字段
-            dbrecord += ((f._1) -> (dbrecord.getOrElse(f._1, "0") + f._2).toString)
-          }
-        })
+      val itemList = f._2.flatMap(f => f)
+      itemList.foreach(iterm => {
+        dbrecord += ((iterm._1) -> (dbrecord(iterm._1).toLong + (iterm._2).toLong).toString)
       })
 
       // 填充db表结构中的主key部分
@@ -64,13 +59,13 @@ class MergeLogAnalysis extends Serializable {
       val logdate = LogTools.getlogtime(keyarray(8), logSteps)
       dbrecord += (("start_time") -> logdate._1)
       dbrecord += (("end_time") -> logdate._2)
-      dbrecord += (("exchange_id") -> (if (keyarray(9).trim.isEmpty())"0" else keyarray(9)))
-      dbrecord += (("app_id") -> (if (keyarray(10).trim.isEmpty())"0" else keyarray(10)))
-      dbrecord += (("app_name") -> (if (keyarray(11).trim.isEmpty())"0" else keyarray(11)))
-      dbrecord += (("exchange_app_cat_id") -> (if (keyarray(12).trim.isEmpty())"0" else keyarray(12)))
+      dbrecord += (("exchange_id") -> keyarray(9))
+      dbrecord += (("app_id") -> keyarray(10))
+      dbrecord += (("app_name") -> keyarray(11))
+      dbrecord += (("exchange_app_cat_id") -> keyarray(12))
 
       // 输出，输出分隔符默认为"\t"
-      val dataRow = for (item <- tbItems) yield (dbrecord.getOrElse(item, "0"))
+      val dataRow = for (item <- tbItems) yield (dbrecord(item))
       if (outSeparator == "") dataRow.mkString("\t") else dataRow.mkString(outSeparator)
     })
   }

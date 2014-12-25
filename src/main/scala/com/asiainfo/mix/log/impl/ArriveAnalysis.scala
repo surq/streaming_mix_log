@@ -22,14 +22,11 @@ class ArriveAnalysis extends StreamAction with Serializable {
   override def run(logtype: String, inputStream: DStream[Array[(String, String)]], logSteps: Int): DStream[Array[(String, String)]] = {
     printInfo(this.getClass(), "ArriveAnalysis is running!")
 
-    val tablesMap = XmlProperiesAnalysis.getTablesDefMap
     val logPropertiesMaps = XmlProperiesAnalysis.getLogStructMap
     val logPropertiesMap = logPropertiesMaps(logtype)
 
     // log数据主key
     val keyItems = logPropertiesMap("rowKey").split(",")
-    //输出为表结构样式　用
-    val tbItems = tablesMap("items").split(",")
     // rowkey 连接符
     val separator = "asiainfoMixSeparator"
 
@@ -51,15 +48,14 @@ class ArriveAnalysis extends StreamAction with Serializable {
       val record = (f._2).head
       val itemMap = record.toMap
       val keyMap = (for { key <- keyItems } yield (key, itemMap(key))).toMap
-      val rowKey = DimensionEditor.getArriveChangeRowKeyEditor(keyMap, logSteps, separator)
+      val rowKey = DimensionEditor.getUnionKey("arrive",keyMap, logSteps, separator)
       // 创建db表结构并初始化
       var dbrecord = Map[String, String]()
       // 流计算
       dbrecord += (("arrive_cnt") -> "1")
-      
-      // 顺列流字段为db表结构字段 第一个字段 rowKey
-      var mesgae = LogTools.setTBSeq(rowKey, tbItems, dbrecord)
-      mesgae.toArray
+      // rowKey: 多维度联合主键
+      dbrecord += (("rowKey", rowKey))
+      dbrecord.toArray
     })
   }
 }
