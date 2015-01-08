@@ -46,7 +46,6 @@ object LogAnalysisApp {
       val dstream = ssc.textFileStream(inputPath)
       (logtype, dstream)
     })
-
     // 数据与配置文件定义相拉链，变为[k,v]形式，并过滤字段个数不正确的数据
     val kvDstreams = logStructMap.map(log => {
       val logtype = log._1

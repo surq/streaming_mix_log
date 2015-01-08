@@ -111,17 +111,17 @@ object DimensionEditor extends Serializable {
     //素材ID	●	20(素材ID_orderId_cId_slotId_price_sizeId)
     //广告ID	●	20(广告ID_orderId_cId_slotId_price_sizeId)
     //尺寸ID	●	20(adId_orderId_cId_slotId_price_尺寸ID)
-
+    
     // 活动ID
     val activity_id = infoList(2)
     //订单ID
     val order_id = infoList(1)
     // 素材ID ad_id和material_id相同
-    val material_id = infoList(0)
+    val material_id = infoList(4)
     // 广告ID
     val ad_id = infoList(0)
     // 尺寸ID
-    val size_id = infoList(5)
+    val size_id = infoList(6)
 
     // 18(slotId_size_广告位ID_landpage_lowprice)
     val ad_pos_info = keyMap("ad_pos_info")
