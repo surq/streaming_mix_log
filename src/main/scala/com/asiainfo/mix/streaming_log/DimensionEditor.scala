@@ -18,7 +18,7 @@ object DimensionEditor extends Serializable {
       case "expose" => getExposeRowKeyEditor(keyMap, logSteps, separator)
       case "arrive" => getArriveChangeRowKeyEditor(keyMap, logSteps, separator)
       case "change" => getArriveChangeRowKeyEditor(keyMap, logSteps, separator)
-      case _  => println("无此类型日志，请检查["+ logType +"]拼写");""
+      case _ => println("无此类型日志，请检查[" + logType + "]拼写"); ""
     }
   }
 
@@ -111,13 +111,13 @@ object DimensionEditor extends Serializable {
     //素材ID	●	20(素材ID_orderId_cId_slotId_price_sizeId)
     //广告ID	●	20(广告ID_orderId_cId_slotId_price_sizeId)
     //尺寸ID	●	20(adId_orderId_cId_slotId_price_尺寸ID)
-    
+
     // 活动ID
     val activity_id = infoList(2)
     //订单ID
     val order_id = infoList(1)
-    // 素材ID ad_id和material_id相同
-    val material_id = infoList(4)
+    // 素材ID 和广告ID相同
+    val material_id = infoList(0)
     // 广告ID
     val ad_id = infoList(0)
     // 尺寸ID
@@ -138,8 +138,9 @@ object DimensionEditor extends Serializable {
     // app_id
     var app_id = "0"
     if (!(keyMap("app_id").trim.isEmpty)) app_id = keyMap("app_id")
-    // app名称
-    var app_name = "0"
+    // app名称 
+//    var app_name = getappName(keyMap("app_name"))
+        var app_name = "0"
     if (!(keyMap("app_name").trim.isEmpty)) app_name = keyMap("app_name")
     // app分类ID
     var exchange_app_cat_id = "0"
@@ -188,7 +189,8 @@ object DimensionEditor extends Serializable {
     var app_id = "0"
     if (!(keyMap("app_id").trim.isEmpty)) app_id = keyMap("app_id")
     // app名称
-    var app_name = "0"
+//    var app_name = getappName(keyMap("app_name"))
+        var app_name = "0"
     if (!(keyMap("app_name").trim.isEmpty)) app_name = keyMap("app_name")
     // app分类ID
     var exchange_app_cat_id = "0"
@@ -236,6 +238,7 @@ object DimensionEditor extends Serializable {
     var app_id = "0"
     if (!(keyMap("app_id").trim.isEmpty)) app_id = keyMap("app_id")
     // app名称
+//    var app_name = getappName(keyMap("app_name"))
     var app_name = "0"
     if (!(keyMap("app_name").trim.isEmpty)) app_name = keyMap("app_name")
     // app分类ID
@@ -255,4 +258,16 @@ object DimensionEditor extends Serializable {
       app_name + separator +
       exchange_app_cat_id
   }
+
+  /**
+   * 若app_name中存在“\t”则用“0”代替<br>
+   */
+//  private def getappName(name: String): String = {
+//    var app_name = "0"
+//    if (!(name.trim.isEmpty)) {
+//      val namesplit = name.trim.split("\t")
+//      if (namesplit.size > 1) app_name = namesplit.mkString("0")
+//    }
+//    app_name
+//  }
 }
