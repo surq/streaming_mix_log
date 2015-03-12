@@ -51,23 +51,23 @@
         </describe>
         <log>
             <logType>click</logType>
-            <items>loglen,logver,logtime,playid,adid,orderid,activityid,ex_uid,gender,cookie,streamsrc,client ip,ua,referer,loadpage,playstyle,playlocation,pageid,userinteristeid,areaid,sizeid,ad_pos_id,bidtime,cheatflag,storeurl,isinsertscreen,ispaymentapp,app_id,app_name,device_type,os,goodsid,advertiser_id</items>
+            <items>loglen,logver,logtime,playid,adid,orderid,activityid,ex_uid,gender,cookie,streamsrc,client ip,ua,referer,loadpage,playstyle,playlocation,pageid,userinteristeid,areaid,sizeid,ad_pos_id,bidtime,cheatflag,storeurl,isinsertscreen,ispaymentapp,app_id,app_name,device_type,os,goodsid,advertiser_id,is_mobile,app_category,idfa</items>
             <itemsDescribe>日志长度,日志版本,请求日期/时间,竞价ID,广告ID,订单ID,活动ID,exchange用户ID,性别ID,dsp cookie,流量来源,用户IP,user_agent,页面来源,落地页,展现类型,展示位置,页面分类,用户兴趣,地域id,尺寸id,广告位id,竞价时间,反作弊标识,市场url,是否插屏,支付id,app id,app name,设备类型,os 类型,商品列表,广告主id</itemsDescribe>
-            <rowKey>logtime,adid,orderid,activityid,referer,playlocation,areaid,sizeid,streamsrc,pageid,app_id,app_name</rowKey>
+            <rowKey>logtime,adid,orderid,activityid,referer,playlocation,areaid,sizeid,streamsrc,app_id,app_name,app_category</rowKey>
             <separator></separator>
         </log>
         <log>
             <logType>expose</logType>
-            <items>loglen,logver,logtime,cost,playid,adid,orderid,activityid,ex_uid,gender,cookie,streamsrc,clientip,ua,referer,playstyle,playlocation,pageid,userinteristeid,areaid,sizeid,ad_pos_id,bidtime,cheatflag,storeurl,isinsertscreen,ispaymentapp,app_id,app_name,device_type,os,goodsid,advertiser_id</items>
+            <items>loglen,logver,logtime,cost,playid,adid,orderid,activityid,ex_uid,gender,cookie,streamsrc,clientip,ua,referer,playstyle,playlocation,pageid,userinteristeid,areaid,sizeid,ad_pos_id,bidtime,cheatflag,storeurl,isinsertscreen,ispaymentapp,app_id,app_name,device_type,os,goodsid,advertiser_id,is_mobile,app_category,idfa</items>
             <itemsDescribe>日志长度,日志版本,请求日期/时间,花费,竞价ID,广告ID,订单ID,活动ID,exchange用户ID,性别ID,dsp cookie,流量来源,用户IP,user_agent,页面来源,展现类型,展示位置,页面分类,用户兴趣,地域id,尺寸id,广告位id,竞价时间,反作弊标识,市场url,是否插屏,支付id,app id,app name,设备类型,os 类型,商品列表,广告主id</itemsDescribe>
-            <rowKey>logtime,adid,orderid,activityid,referer,playlocation,areaid,sizeid,streamsrc,pageid,app_id,app_name</rowKey>
+            <rowKey>logtime,adid,orderid,activityid,referer,playlocation,areaid,sizeid,streamsrc,app_id,app_name,app_category</rowKey>
             <separator></separator>
         </log>
         <log>
             <logType>bid</logType>
             <items>loglen,logver,logtype,logtime,exchange_id,bid_id,client_id,area_id,exchange_userid,useragent,usergender,url,mediasite_id,pageid,keyword,baiduinteristedid,exceptindustry,ad_pos_info,joinbid_ad_num,joinbid_ad_info,insert,paid,app_id,app_name,device_type,os,ctr_value,mobile,device_id,mac,connection type,carrier,app_category,idfa,handletime</items>
             <itemsDescribe>日志长度,日志版本,日志类型,请求日期/时间,EXCHANGE标识,竞价ID,客户端ip,地域ID,EXCHANGE用户ID,USER AGENT,USER GENDER,URL,媒体网站分类,页面分类,页面关键词信息,百度兴趣分类,排除行业信息,广告位信息,参与竞价广告数量,参与竞价广告信息放弃竞价为空,是否插屏,是否付费app,app_id,app_name,device_type,os,ctr_value,mobile,device_id,mac,connection type,carrier,app category,IDFA,处理时间</itemsDescribe>
-            <rowKey>logtime,area_id,url,ad_pos_info,joinbid_ad_info,exchange_id,pageid,app_id,app_name</rowKey>
+            <rowKey>logtime,area_id,url,ad_pos_info,joinbid_ad_info,exchange_id,app_id,app_name,app_category</rowKey>
             <separator></separator>
         </log>
     </logProperties>

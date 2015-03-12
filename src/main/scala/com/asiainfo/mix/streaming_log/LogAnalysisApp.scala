@@ -1,6 +1,5 @@
 package com.asiainfo.mix.streaming_log
 
-import org.apache.spark.Logging
 import scala.xml.XML
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.Seconds
@@ -8,6 +7,7 @@ import com.asiainfo.mix.xml.XmlProperiesAnalysis
 import com.asiainfo.mix.log.impl.MergeLogAnalysis
 import org.apache.hadoop.fs.Path
 import org.apache.spark.SparkConf
+import org.apache.log4j.PropertyConfigurator
 
 /**
  * @author surq
@@ -21,6 +21,8 @@ import org.apache.spark.SparkConf
 object LogAnalysisApp {
 
   def main(args: Array[String]): Unit = {
+    PropertyConfigurator.configure("conf/log4j.properties")
+    
     // logconf.xml解析
     XmlProperiesAnalysis.getXmlProperies
     val commonPropsMap = XmlProperiesAnalysis.getCommonPropsMap
@@ -33,8 +35,8 @@ object LogAnalysisApp {
     val outSeparator = outputDataMap("separator")
 
     // TODO
-    //            val master = "local[2]"
-    //            val ssc = new StreamingContext(master, appName, Seconds(interval))
+//                val master = "local[2]"
+//                val ssc = new StreamingContext(master, appName, Seconds(interval))
 
     val sparkConf = new SparkConf().setAppName(appName)
     val ssc = new StreamingContext(sparkConf, Seconds(interval))
